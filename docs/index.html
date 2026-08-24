@@ -1166,12 +1166,17 @@
         }
 
         // Reclass badge
-        let reclassBadge = '<span style="color:#475569;">—</span>';
+        let reclassBadge = '<span style="color:#475569;">&#x2014;</span>';
         if (reclass==='YES')            reclassBadge = `<span class="reclass-done" title="Target: ${rtarget}">&#x2705; ${rtarget}</span>`;
         else if (reclass==='NO')        reclassBadge = `<span class="reclass-push" title="Target: ${rtarget}">&#x23F3; ${rtarget}</span>`;
         else if (reclass==='PENDING_REVIEW') reclassBadge = `<span class="reclass-review" title="Target: ${rtarget}">&#x1F50D; ${rtarget}</span>`;
 
         const ohColor = oh === 0 ? '#ef4444' : '#f1f5f9';
+        const ohvFmt = '$' + ohv.toLocaleString('en-US', {maximumFractionDigits: 0});
+        const dash = '<span style="color:#475569;">&#x2014;</span>';
+        const fcDisp = fc  > 0 ? fc.toFixed(2) : dash;
+        const ltDisp = lt  > 0 ? (lt + 'd')    : dash;
+        const emDisp = emailBadges || dash;
 
         const tr = document.createElement('tr');
         tr.innerHTML = `
@@ -1183,11 +1188,11 @@
           <td style="font-size:0.8rem;color:#94a3b8;">${nsclass||'-'}</td>
           <td>${statusBadge}</td>
           <td style="text-align:right;font-weight:700;color:${ohColor};font-variant-numeric:tabular-nums;">${oh}</td>
-          <td style="text-align:right;font-variant-numeric:tabular-nums;">$${ohv.toLocaleString('en-US',{maximumFractionDigits:0})}</td>
-          <td style="text-align:right;font-variant-numeric:tabular-nums;">${fc > 0 ? fc.toFixed(2) : '<span style='color:#475569;'>—</span>'}</td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums;">${ohvFmt}</td>
+          <td style="text-align:right;font-variant-numeric:tabular-nums;">${fcDisp}</td>
           <td style="text-align:right;">${hits||0}</td>
-          <td style="text-align:right;">${lt > 0 ? lt + 'd' : '<span style='color:#475569;'>—</span>'}</td>
-          <td>${emailBadges || '<span style="color:#475569;">—</span>'}</td>
+          <td style="text-align:right;">${ltDisp}</td>
+          <td>${emDisp}</td>
           <td>${reclassBadge}</td>
         `;
         tbody.appendChild(tr);
