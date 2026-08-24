@@ -338,7 +338,9 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 16px;
-      overflow-x: auto;
+      overflow: auto;
+      max-height: 72vh;
+      min-height: 480px;
       -webkit-overflow-scrolling: touch;
       box-shadow: 0 8px 32px rgba(0,0,0,0.35);
     }
@@ -366,7 +368,7 @@
       white-space: nowrap;
       position: sticky;
       top: 0;
-      z-index: 5;
+      z-index: 10;
       transition: color 0.15s, background-color 0.15s;
     }
 
