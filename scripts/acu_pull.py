@@ -22,7 +22,13 @@ def get_credentials():
         user = env_user.strip()
         if "\\" in user:
             user = user.split("\\", 1)[1]
-        if "@" not in user:
+        if "@" in user and not user.endswith(f"@{TENANT}"):
+            u_part = user.split("@", 1)[0]
+            if u_part.lower() in ("asrikanth", "srikantha"):
+                user = f"SrikanthA@{TENANT}"
+            else:
+                user = f"{u_part}@{TENANT}"
+        elif "@" not in user:
             user = f"{user}@{TENANT}"
         return user, env_pw.strip()
 

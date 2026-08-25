@@ -37,10 +37,15 @@ CATALOG_BASELINE = DATA_DIR / "catalog_baseline.csv"
 
 # NetStock: glob newest Stock holding.xlsx across all refresh folders
 def _find_netstock():
-    import glob
-    candidates = list((WORKSPACE_ROOT / "11_Data_NetStock_Exports").glob(r"**\Stock holding.xlsx"))
-    candidates = [p for p in candidates if not p.name.startswith("~$")]
-    return max(candidates, key=lambda p: p.stat().st_mtime) if candidates else None
+    export_dir = WORKSPACE_ROOT / "11_Data_NetStock_Exports"
+    if not export_dir.exists():
+        return None
+    try:
+        candidates = list(export_dir.rglob("Stock holding.xlsx"))
+        candidates = [p for p in candidates if not p.name.startswith("~$")]
+        return max(candidates, key=lambda p: p.stat().st_mtime) if candidates else None
+    except Exception:
+        return None
 
 EMAIL_SUMMARY = WORKSPACE_ROOT / "35_Tool_Email_Knowledge_Base" / "extracted" / "parts_summary.csv"
 
