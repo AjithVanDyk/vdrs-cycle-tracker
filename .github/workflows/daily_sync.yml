@@ -1,0 +1,56 @@
+name: Daily Cycle Tracker Sync & Deploy
+
+on:
+  schedule:
+    # 7:00 AM EDT (11:00 UTC) Monday-Friday
+    - cron: '0 11 * * 1-5'
+    # 1:00 PM EDT (17:00 UTC) Monday-Friday
+    - cron: '0 17 * * 1-5'
+  workflow_dispatch:
+  push:
+    paths:
+      - 'data/changes.csv'
+      - 'scripts/**'
+
+permissions:
+  contents: write
+
+jobs:
+  sync-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests pandas openpyxl
+
+      - name: Run Live Sync & Rebuild Dashboard
+        env:
+          ACUMATICA_USER: ${{ secrets.ACUMATICA_USER }}
+          ACUMATICA_PASSWORD: ${{ secrets.ACUMATICA_PASSWORD }}
+          SQL_SERVER: ${{ secrets.SQL_SERVER }}
+          SQL_DATABASE: ${{ secrets.SQL_DATABASE }}
+          SQL_USER: ${{ secrets.SQL_USER }}
+          SQL_PASSWORD: ${{ secrets.SQL_PASSWORD }}
+        run: |
+          python scripts/sync_dashboard.py
+
+      - name: Commit and Push Updated Dashboard
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/index.html data/
+          if git diff --staged --quiet; then
+            echo "No dashboard or data changes detected."
+          else
+            git commit -m "auto(cloud): sync live Acumatica cycle changes [$(date -u +'%Y-%m-%d %H:%M UTC')]"
+            git push
+          fi
