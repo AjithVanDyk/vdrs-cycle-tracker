@@ -1589,26 +1589,29 @@ def generate_html(df, catalog_df):
 def git_push_tracker(commit_msg=None):
     """Commit and push docs/index.html in vdrs-cycle-tracker repo to update GitHub Pages."""
     import subprocess
-    repo_dir = ROOT / "vdrs-cycle-tracker"
+    repo_dir = REPO_ROOT
     if not repo_dir.exists():
         print("vdrs-cycle-tracker directory not found, skipping git push")
         return False
     try:
-        status = subprocess.run(["git", "status", "--porcelain"], cwd=repo_dir, capture_output=True, text=True)
+        subprocess.run(["git", "-C", str(repo_dir), "fetch", "origin"], capture_output=True, check=False)
+        subprocess.run(["git", "-C", str(repo_dir), "pull", "--rebase", "origin", "main"], capture_output=True, check=False)
+
+        status = subprocess.run(["git", "-C", str(repo_dir), "status", "--porcelain"], capture_output=True, text=True)
         if not status.stdout.strip():
             print("vdrs-cycle-tracker working tree clean, no git commit needed.")
             return True
-        subprocess.run(["git", "add", "docs/index.html"], cwd=repo_dir, check=True)
+        subprocess.run(["git", "-C", str(repo_dir), "add", "docs/index.html"], check=True)
         # Also stage data directory if present
         data_dir = repo_dir / "data"
         if data_dir.exists():
-            subprocess.run(["git", "add", "data"], cwd=repo_dir)
+            subprocess.run(["git", "-C", str(repo_dir), "add", "data"], check=True)
         if not commit_msg:
             now_str = datetime.now().strftime("%Y-%m-%d %H:%M")
             commit_msg = f"auto: update cycle classification tracker dashboard ({now_str})"
-        subprocess.run(["git", "commit", "-m", commit_msg], cwd=repo_dir, check=True)
+        subprocess.run(["git", "-C", str(repo_dir), "commit", "-m", commit_msg], check=True)
         print(f"Committed changes: {commit_msg}")
-        subprocess.run(["git", "push", "origin", "main"], cwd=repo_dir, check=True)
+        subprocess.run(["git", "-C", str(repo_dir), "push", "origin", "main"], check=True)
         print("Pushed updated dashboard to GitHub Pages (origin/main).")
         return True
     except subprocess.CalledProcessError as e:
