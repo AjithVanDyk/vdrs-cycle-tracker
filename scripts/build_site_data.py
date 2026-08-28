@@ -1594,24 +1594,31 @@ def git_push_tracker(commit_msg=None):
         print("vdrs-cycle-tracker directory not found, skipping git push")
         return False
     try:
-        subprocess.run(["git", "-C", str(repo_dir), "fetch", "origin"], capture_output=True, check=False)
-        subprocess.run(["git", "-C", str(repo_dir), "pull", "--rebase", "origin", "main"], capture_output=True, check=False)
+        # Fetch remote updates first
+        subprocess.run(["git", "-C", str(repo_dir), "fetch", "origin", "main"], capture_output=True, check=False)
+        # Stage generated outputs
+        subprocess.run(["git", "-C", str(repo_dir), "add", "docs/index.html"], check=False)
+        data_dir = repo_dir / "data"
+        if data_dir.exists():
+            subprocess.run(["git", "-C", str(repo_dir), "add", "data"], check=False)
 
         status = subprocess.run(["git", "-C", str(repo_dir), "status", "--porcelain"], capture_output=True, text=True)
         if not status.stdout.strip():
             print("vdrs-cycle-tracker working tree clean, no git commit needed.")
-            return True
-        subprocess.run(["git", "-C", str(repo_dir), "add", "docs/index.html"], check=True)
-        # Also stage data directory if present
-        data_dir = repo_dir / "data"
-        if data_dir.exists():
-            subprocess.run(["git", "-C", str(repo_dir), "add", "data"], check=True)
-        if not commit_msg:
-            now_str = datetime.now().strftime("%Y-%m-%d %H:%M")
-            commit_msg = f"auto: update cycle classification tracker dashboard ({now_str})"
-        subprocess.run(["git", "-C", str(repo_dir), "commit", "-m", commit_msg], check=True)
-        print(f"Committed changes: {commit_msg}")
-        subprocess.run(["git", "-C", str(repo_dir), "push", "origin", "main"], check=True)
+        else:
+            if not commit_msg:
+                now_str = datetime.now().strftime("%Y-%m-%d %H:%M")
+                commit_msg = f"auto: update cycle classification tracker dashboard ({now_str})"
+            subprocess.run(["git", "-C", str(repo_dir), "commit", "-m", commit_msg], check=True)
+            print(f"Committed changes: {commit_msg}")
+
+        # Attempt push. If rejected due to upstream cloud runs, merge remote using ours strategy and retry push
+        push_res = subprocess.run(["git", "-C", str(repo_dir), "push", "origin", "main"], capture_output=True, text=True)
+        if push_res.returncode != 0:
+            print("Push was rejected; reconciling remote changes with -X ours...")
+            subprocess.run(["git", "-C", str(repo_dir), "merge", "origin/main", "-X", "ours", "-m", "merge(cloud): reconcile with cloud run"], capture_output=True, check=False)
+            subprocess.run(["git", "-C", str(repo_dir), "push", "origin", "main"], check=True)
+
         print("Pushed updated dashboard to GitHub Pages (origin/main).")
         return True
     except subprocess.CalledProcessError as e:
