@@ -847,8 +847,8 @@ def generate_html(df, catalog_df):
 
     <!-- Tab Navigation -->
     <div class="tab-bar">
-      <button class="tab-btn active" id="tab-tracker" onclick="switchTab('tracker')">📋 Reclass Tracker ({total_count:,} parts)</button>
-      <button class="tab-btn" id="tab-catalog" onclick="switchTab('catalog')">📦 Full Catalog ({c_total:,} SKUs)</button>
+      <button class="tab-btn active" id="tab-tracker" onclick="switchTab('tracker')">📋 Parts Reclassification Tracker ({total_count:,} parts)</button>
+      <button class="tab-btn" id="tab-catalog" onclick="switchTab('catalog')">📦 Full Master Catalog ({c_total:,} SKUs)</button>
     </div>
 
     <!-- ═══════════════ TRACKER VIEW ═══════════════ -->
@@ -861,7 +861,7 @@ def generate_html(df, catalog_df):
           <span style="font-size:0.85rem; color:#10b981; font-weight:700;">● Live SQL Sync</span>
         </div>
         <h1>Parts Cycle Classification Tracker</h1>
-        <p class="subhead">Clear status summary of cycle code changes across all 9,494 catalog parts.</p>
+        <p class="subhead">Live operational tracking of cycle code reclassifications across all {total_count:,} parts.</p>
       </div>
 
       <div class="as-of-tag">
@@ -878,31 +878,31 @@ def generate_html(df, catalog_df):
     <!-- 3 Big Executive Metric Cards -->
     <div class="summary-grid">
       <div class="summary-card done" onclick="setFilterByCard('YES')">
-        <div class="card-label">1. Completed & Live</div>
+        <div class="card-label">1. Live in Acumatica</div>
         <div class="card-number" style="color:#34d399;">{completed_count:,}</div>
-        <div class="card-desc">Verified live in Acumatica</div>
+        <div class="card-desc">Verified active in Acumatica ERP</div>
       </div>
 
       <div class="summary-card push" onclick="setFilterByCard('NO')">
         <div class="card-label">2. Ready to Push</div>
         <div class="card-number" style="color:#fbbf24;">{pending_push_count:,}</div>
-        <div class="card-desc">Decided calls ready for Acumatica</div>
+        <div class="card-desc">Approved decisions ready for bulk import</div>
         <button class="dl-btn card-dl" onclick="event.stopPropagation(); downloadAcumatica('NO')"
           title="Download all Ready to Push rows as Acumatica bulk import CSV">
-          ⬇ Download Bulk Import ({pending_push_count:,} parts)
+          ⬇ Export Acumatica Import ({pending_push_count:,} parts)
         </button>
       </div>
 
       <div class="summary-card review" onclick="setFilterByCard('PENDING_REVIEW')">
         <div class="card-label">3. Pending Review</div>
         <div class="card-number" style="color:#c084fc;">{pending_review_count:,}</div>
-        <div class="card-desc">Open clarification & field review items</div>
+        <div class="card-desc">Open engineering & field clarification items</div>
       </div>
 
       <div class="summary-card value">
-        <div class="card-label">Total Stock Value</div>
+        <div class="card-label">Total Tracked Stock Value</div>
         <div class="card-number" style="color:#38bdf8;">${total_val:,.0f}</div>
-        <div class="card-desc">Inventory on-hand at cost</div>
+        <div class="card-desc">On-hand inventory valuation at cost</div>
       </div>
     </div>
 
@@ -968,19 +968,19 @@ def generate_html(df, catalog_df):
     <div class="controls-row">
       <div class="filter-buttons">
         <button class="f-btn active" data-filter="ALL" onclick="setFilter('ALL', this)">All ({total_count:,})</button>
-        <button class="f-btn" data-filter="YES" onclick="setFilter('YES', this)">Completed ({completed_count:,})</button>
+        <button class="f-btn" data-filter="YES" onclick="setFilter('YES', this)">Live in Acumatica ({completed_count:,})</button>
         <button class="f-btn" data-filter="NO" onclick="setFilter('NO', this)">Ready to Push ({pending_push_count:,})</button>
-        <button class="f-btn" data-filter="PENDING_REVIEW" onclick="setFilter('PENDING_REVIEW', this)">Needs Review ({pending_review_count:,})</button>
-        <button class="f-btn" data-filter="P1" onclick="setFilter('P1', this)">P1 ({code_counts.get("P1", 0):,})</button>
-        <button class="f-btn" data-filter="P2" onclick="setFilter('P2', this)">P2 ({code_counts.get("P2", 0):,})</button>
-        <button class="f-btn" data-filter="P3" onclick="setFilter('P3', this)">P3 ({code_counts.get("P3", 0):,})</button>
-        <button class="f-btn" data-filter="HOLD" onclick="setFilter('HOLD', this)">HOLD ({code_counts.get("HOLD", 0):,})</button>
+        <button class="f-btn" data-filter="PENDING_REVIEW" onclick="setFilter('PENDING_REVIEW', this)">Pending Review ({pending_review_count:,})</button>
+        <button class="f-btn" data-filter="P1" onclick="setFilter('P1', this)">P1 Critical ({code_counts.get("P1", 0):,})</button>
+        <button class="f-btn" data-filter="P2" onclick="setFilter('P2', this)">P2 Managed ({code_counts.get("P2", 0):,})</button>
+        <button class="f-btn" data-filter="P3" onclick="setFilter('P3', this)">P3 Demand ({code_counts.get("P3", 0):,})</button>
+        <button class="f-btn" data-filter="HOLD" onclick="setFilter('HOLD', this)">HOLD Review ({code_counts.get("HOLD", 0):,})</button>
       </div>
 
       <div style="display:flex; align-items:center; gap:12px;">
         <button class="dl-btn" onclick="downloadAcumatica('FILTERED')"
           title="Download currently filtered rows as Acumatica bulk import CSV">
-          ⬇ Acumatica Import CSV
+          ⬇ Export Acumatica Import CSV
         </button>
         <div class="search-box">
           <svg class="search-icon-svg" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
@@ -997,13 +997,13 @@ def generate_html(df, catalog_df):
             <th onclick="sortTable(0)" id="th-0">Part Number <span class="sort-icon">▲</span></th>
             <th onclick="sortTable(1)" id="th-1">Description <span class="sort-icon"></span></th>
             <th onclick="sortTable(2)" id="th-2">Item Class <span class="sort-icon"></span></th>
-            <th onclick="sortTable(5)" id="th-5">Target Code <span class="sort-icon"></span></th>
-            <th onclick="sortTable(6)" id="th-6">Status <span class="sort-icon"></span></th>
-            <th>Review Notes / Rationale</th>
-            <th onclick="sortTable(12)" id="th-12" style="text-align:right;">On Hand <span class="sort-icon"></span></th>
-            <th onclick="sortTable(14)" id="th-14" style="text-align:right;">Reorder Point <span class="sort-icon"></span></th>
-            <th onclick="sortTable(15)" id="th-15" style="text-align:right;">Set ROP To <span class="sort-icon"></span></th>
-            <th onclick="sortTable(13)" id="th-13" style="text-align:right;">Stock Value <span class="sort-icon"></span></th>
+            <th onclick="sortTable(5)" id="th-5">Cycle Transition <span class="sort-icon"></span></th>
+            <th onclick="sortTable(6)" id="th-6">Acumatica Sync <span class="sort-icon"></span></th>
+            <th>Decision Rationale / Notes</th>
+            <th onclick="sortTable(12)" id="th-12" style="text-align:right;">On Hand Qty <span class="sort-icon"></span></th>
+            <th onclick="sortTable(14)" id="th-14" style="text-align:right;">Current ROP <span class="sort-icon"></span></th>
+            <th onclick="sortTable(15)" id="th-15" style="text-align:right;">Target ROP <span class="sort-icon"></span></th>
+            <th onclick="sortTable(13)" id="th-13" style="text-align:right;">Stock Value ($) <span class="sort-icon"></span></th>
           </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -1035,7 +1035,7 @@ def generate_html(df, catalog_df):
       <!-- Catalog KPI Cards -->
       <div class="cat-kpi-grid">
         <div class="cat-kpi">
-          <div class="lbl">Total SKUs</div>
+          <div class="lbl">Total Master SKUs</div>
           <div class="num" style="color:#38bdf8;">{c_total:,}</div>
         </div>
         <div class="cat-kpi">
@@ -1043,11 +1043,11 @@ def generate_html(df, catalog_df):
           <div class="num" style="color:#10b981;">{c_email:,}</div>
         </div>
         <div class="cat-kpi">
-          <div class="lbl">Stocked Out</div>
+          <div class="lbl">Stockout (0 Qty)</div>
           <div class="num" style="color:#ef4444;">{c_stockedout:,}</div>
         </div>
         <div class="cat-kpi">
-          <div class="lbl">No Reclass Decision</div>
+          <div class="lbl">Unreviewed SKUs</div>
           <div class="num" style="color:#64748b;">{c_nodecision:,}</div>
         </div>
       </div>
@@ -1056,16 +1056,16 @@ def generate_html(df, catalog_df):
       <div class="controls-row" style="margin-bottom:18px;">
         <div class="filter-buttons" id="cat-filter-buttons">
           <button class="f-btn active" data-cfilter="ALL"    onclick="setCatFilter('ALL',this)">All ({c_total:,})</button>
-          <button class="f-btn" data-cfilter="P1"     onclick="setCatFilter('P1',this)">P1 ({cycle_counts.get('P1',0):,})</button>
-          <button class="f-btn" data-cfilter="P2"     onclick="setCatFilter('P2',this)">P2 ({cycle_counts.get('P2',0):,})</button>
-          <button class="f-btn" data-cfilter="P3"     onclick="setCatFilter('P3',this)">P3 ({cycle_counts.get('P3',0):,})</button>
-          <button class="f-btn" data-cfilter="C"      onclick="setCatFilter('C',this)">C Legacy ({cycle_counts.get('C',0):,})</button>
-          <button class="f-btn" data-cfilter="A"      onclick="setCatFilter('A',this)">A Legacy ({cycle_counts.get('A',0):,})</button>
-          <button class="f-btn" data-cfilter="U"      onclick="setCatFilter('U',this)">U ({cycle_counts.get('U',0):,})</button>
-          <button class="f-btn" data-cfilter="EMAIL"  onclick="setCatFilter('EMAIL',this)">Has Email ({c_email:,})</button>
-          <button class="f-btn" data-cfilter="SOUT"   onclick="setCatFilter('SOUT',this)">Stocked Out ({c_stockedout:,})</button>
+          <button class="f-btn" data-cfilter="P1"     onclick="setCatFilter('P1',this)">P1 Critical ({cycle_counts.get('P1',0):,})</button>
+          <button class="f-btn" data-cfilter="P2"     onclick="setCatFilter('P2',this)">P2 Managed ({cycle_counts.get('P2',0):,})</button>
+          <button class="f-btn" data-cfilter="P3"     onclick="setCatFilter('P3',this)">P3 Demand ({cycle_counts.get('P3',0):,})</button>
+          <button class="f-btn" data-cfilter="C"      onclick="setCatFilter('C',this)">Legacy C ({cycle_counts.get('C',0):,})</button>
+          <button class="f-btn" data-cfilter="A"      onclick="setCatFilter('A',this)">Legacy A ({cycle_counts.get('A',0):,})</button>
+          <button class="f-btn" data-cfilter="U"      onclick="setCatFilter('U',this)">U Superseded ({cycle_counts.get('U',0):,})</button>
+          <button class="f-btn" data-cfilter="EMAIL"  onclick="setCatFilter('EMAIL',this)">Email Evidence ({c_email:,})</button>
+          <button class="f-btn" data-cfilter="SOUT"   onclick="setCatFilter('SOUT',this)">Stockout ({c_stockedout:,})</button>
           <button class="f-btn" data-cfilter="EXCESS" onclick="setCatFilter('EXCESS',this)">Excess Stock ({c_excess:,})</button>
-          <button class="f-btn" data-cfilter="NODEC"  onclick="setCatFilter('NODEC',this)">No Decision ({c_nodecision:,})</button>
+          <button class="f-btn" data-cfilter="NODEC"  onclick="setCatFilter('NODEC',this)">Unreviewed ({c_nodecision:,})</button>
         </div>
         <div class="search-box">
           <svg class="search-icon-svg" width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
@@ -1083,15 +1083,15 @@ def generate_html(df, catalog_df):
               <th onclick="sortCat(2)" id="cth-2">Supplier <span class="sort-icon"></span></th>
               <th onclick="sortCat(3)" id="cth-3">Item Class <span class="sort-icon"></span></th>
               <th onclick="sortCat(4)" id="cth-4">Live Cycle <span class="sort-icon"></span></th>
-              <th onclick="sortCat(5)" id="cth-5">NS Class <span class="sort-icon"></span></th>
-              <th onclick="sortCat(6)" id="cth-6">Status <span class="sort-icon"></span></th>
-              <th onclick="sortCat(7)" id="cth-7" style="text-align:right;">On Hand <span class="sort-icon"></span></th>
-              <th onclick="sortCat(8)" id="cth-8" style="text-align:right;">On Hand $ <span class="sort-icon"></span></th>
-              <th onclick="sortCat(9)" id="cth-9" style="text-align:right;">Forecast/mo <span class="sort-icon"></span></th>
-              <th onclick="sortCat(10)" id="cth-10" style="text-align:right;">Hits <span class="sort-icon"></span></th>
-              <th onclick="sortCat(11)" id="cth-11" style="text-align:right;">LT days <span class="sort-icon"></span></th>
+              <th onclick="sortCat(5)" id="cth-5">NetStock Class <span class="sort-icon"></span></th>
+              <th onclick="sortCat(6)" id="cth-6">Stock Status <span class="sort-icon"></span></th>
+              <th onclick="sortCat(7)" id="cth-7" style="text-align:right;">On Hand Qty <span class="sort-icon"></span></th>
+              <th onclick="sortCat(8)" id="cth-8" style="text-align:right;">Stock Value ($) <span class="sort-icon"></span></th>
+              <th onclick="sortCat(9)" id="cth-9" style="text-align:right;">Avg Mo Forecast <span class="sort-icon"></span></th>
+              <th onclick="sortCat(10)" id="cth-10" style="text-align:right;">Annual Hits <span class="sort-icon"></span></th>
+              <th onclick="sortCat(11)" id="cth-11" style="text-align:right;">Lead Time (Days) <span class="sort-icon"></span></th>
               <th onclick="sortCat(12)" id="cth-12">Email Signals <span class="sort-icon"></span></th>
-              <th onclick="sortCat(18)" id="cth-18">Reclass <span class="sort-icon"></span></th>
+              <th onclick="sortCat(18)" id="cth-18">Target Reclass <span class="sort-icon"></span></th>
             </tr>
           </thead>
           <tbody id="catTableBody"></tbody>
@@ -1125,7 +1125,7 @@ def generate_html(df, catalog_df):
       new Chart(document.getElementById('statusChart').getContext('2d'), {{
         type: 'bar',
         data: {{
-          labels: ['1. Completed (Live)', '2. Ready to Push', '3. Needs Review'],
+          labels: ['1. Live in Acumatica', '2. Ready to Push', '3. Pending Review'],
           datasets: [{{
             data: [{completed_count}, {pending_push_count}, {pending_review_count}],
             backgroundColor: ['#10b981', '#f59e0b', '#a855f7'],
@@ -1271,9 +1271,9 @@ def generate_html(df, catalog_df):
         const [part, desc, iclass, supp, from, to, status, rword, rdetail, appby, date, sheet, onhand, val, rop, setRop] = r;
 
         let statusPill = '';
-        if (status === 'YES') statusPill = '<span class="pill pill-done">● DONE (LIVE)</span>';
+        if (status === 'YES') statusPill = '<span class="pill pill-done">● ACTIVE (LIVE)</span>';
         else if (status === 'NO') statusPill = '<span class="pill pill-push">● READY TO PUSH</span>';
-        else statusPill = '<span class="pill pill-review">● NEEDS REVIEW</span>';
+        else statusPill = '<span class="pill pill-review">● PENDING REVIEW</span>';
 
         let codePill = 'code-p3';
         if (to === 'P1') codePill = 'code-p1';
